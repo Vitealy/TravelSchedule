@@ -19,45 +19,161 @@ struct ContentView: View {
         .padding()
         .task {
             // Вызываем нашу тестовую функцию при появлении View
-            await testFetchStations()
+            await testAllServices()
         }
     }
     
-    // Функция для тестового вызова API
-    private func testFetchStations() async {
-        // Создаём Task для выполнения асинхронного кода
+    // MARK: - Тестовый вызов всех сервисов
+    
+    private func testAllServices() async {
+        // 1. Создаём клиент — точку входа для всех запросов.
+        let client: Client
         do {
-            // 1. Создаём экземпляр сгенерированного клиента
-            let client = Client(
-                // Используем URL сервера, также сгенерированный из openapi.yaml (если он там определён)
+            client = Client(
                 serverURL: try Servers.Server1.url(),
-                // Указываем, какой транспорт использовать для отправки запросов
                 transport: URLSessionTransport()
             )
-            
-            // 2. Создаём экземпляр нашего сервиса, передавая ему клиент и API-ключ
-            let service = NearestStationsService(
-                client: client,
-                apikey: AppConfig.yandexRaspAPIKey // !!! ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ КЛЮЧ !!!
-            )
-            
-            // 3. Вызываем метод сервиса
-            let stations = try await service.getNearestStations(
-                lat: 59.864177, // Пример координат
-                lng: 30.319163, // Пример координат
-                distance: 50    // Пример дистанции
-            )
-            
-            // 4. Если всё успешно, печатаем результат в консоль
-            print("Successfully fetched stations: \(stations)")
         } catch {
-            // 5. Если произошла ошибка на любом из этапов (создание клиента, вызов сервиса, обработка ответа),
-            //    она будет поймана здесь, и мы выведем её в консоль
-            print("Error fetching stations: \(error)")
-            // В реальном приложении здесь должна быть логика обработки ошибок (показ алерта и т. д.)
-            
+            print("❌ Не удалось создать клиент: \(error)")
+            return
         }
+        
+        // 2. API-ключ читаем из AppConfig (он берёт его из Info.plist,
+        //    куда значение подставляется из Config.xcconfig).
+        let apikey = AppConfig.yandexRaspAPIKey
+        
+        // 3. Вызываем по очереди все сервисы.
+        // Каждый сервис — в своём do-catch, чтобы ошибка одного не блокировала остальные.
+        do { try await testNearestStations(client: client, apikey: apikey) }
+        catch { print("❌ NearestStations: \(error)") }
+        
+        do { try await testScheduleBetweenStations(client: client, apikey: apikey) }
+        catch { print("❌ ScheduleBetweenStations: \(error)") }
+        
+        do { try await testScheduleOnStation(client: client, apikey: apikey) }
+        catch { print("❌ ScheduleOnStation: \(error)") }
+        
+        do { try await testThreadStations(client: client, apikey: apikey) }
+        catch { print("❌ ThreadStations: \(error)") }
+        
+        do { try await testNearestSettlement(client: client, apikey: apikey) }
+        catch { print("❌ NearestSettlement: \(error)") }
+        
+        do { try await testCarrierInfo(client: client, apikey: apikey) }
+        catch { print("❌ CarrierInfo: \(error)") }
+        
+// Закомментировано: запрос возвращает ~40 МБ JSON и может таймаутить.
+// Будет использоваться на экране выбора города — там будет реализована отдельная обработка.
+//        do { try await testStationsList(client: client, apikey: apikey) }
+//        catch { print("❌ StationsList: \(error)") }
+        
+        do { try await testCopyright(client: client, apikey: apikey) }
+        catch { print("❌ Copyright: \(error)") }
+        
+        print("🎉 Проверка завершена")
     }
+    
+    // MARK: - Проверка каждого сервиса отдельно
+    
+    private func testNearestStations(client: Client, apikey: String) async throws {
+        let service = NearestStationsService(client: client, apikey: apikey)
+        let result = try await service.getNearestStations(
+            lat: 59.864177,
+            lng: 30.319163,
+            distance: 50
+        )
+        print("✅ NearestStations: получено станций — \(result.stations?.count ?? 0)")
+    }
+    
+    private func testScheduleBetweenStations(client: Client, apikey: String) async throws {
+        let service = ScheduleBetweenStationsService(client: client, apikey: apikey)
+        let result = try await service.getScheduleBetweenStations(
+            from: "c146",   // Москва (пример)
+            to: "c213",     // Санкт-Петербург (пример)
+        )
+        print("✅ ScheduleBetweenStations: сегментов — \(result.segments?.count ?? 0)")
+    }
+    
+    private func testScheduleOnStation(client: Client, apikey: String) async throws {
+        let service = ScheduleOnStationService(client: client, apikey: apikey)
+        let result = try await service.getScheduleOnStation(
+            station: "s9600213"   // пример кода станции
+        )
+        print("✅ ScheduleOnStation: рейсов — \(result.schedule?.count ?? 0)")
+    }
+    
+    private func testThreadStations(client: Client, apikey: String) async throws {
+        // Шаг 1. Получаем расписание между станциями
+        let scheduleService = ScheduleBetweenStationsService(client: client, apikey: apikey)
+        let schedule = try await scheduleService.getScheduleBetweenStations(
+            from: "c146",   // Москва
+            to: "c213"     // Санкт-Петербург
+        )
+        
+        // Шаг 2. Достаём uid первой нитки
+        guard let uid = schedule.segments?.first?.thread?.uid else {
+            print("⚠️ ThreadStations: Нет ниток в расписании")
+            return
+        }
+        print("ℹ️ Получен uid: \(uid)")
+        
+        // Шаг 3. Запрашиваем станции следования по этому uid
+        let threadService = ThreadStationsService(client: client, apikey: apikey)
+        let result = try await threadService.getThreadStations(uid: uid)
+        print("✅ ThreadStations (uid=\(uid)): остановок — \(result.stops?.count ?? 0)")
+    }
+    
+    private func testNearestSettlement(client: Client, apikey: String) async throws {
+        let service = NearestSettlementService(client: client, apikey: apikey)
+        let result = try await service.getNearestSettlement(
+            lat: 59.864177,
+            lng: 30.319163,
+            distance: 50
+        )
+        print("✅ NearestSettlement: \(result.title ?? "—")")
+    }
+    
+    private func testCarrierInfo(client: Client, apikey: String) async throws {
+        // Шаг 1. Получаем расписание между двумя станциями.
+            let scheduleService = ScheduleBetweenStationsService(client: client, apikey: apikey)
+            let schedule = try await scheduleService.getScheduleBetweenStations(
+                from: "c146",   // Москва (пример кода)
+                to: "c213"      // Санкт-Петербург (пример кода)
+            )
+            
+            // Шаг 2. Достаём код перевозчика из первого сегмента.
+            // Если цепочка где-то оборвётся (нет сегментов, нет нитки, нет перевозчика) — выходим.
+            guard let carrierCode = schedule.segments?.first?.thread?.carrier?.code else {
+                print("⚠️ CarrierInfo: не удалось получить код перевозчика из расписания")
+                return
+            }
+            
+            // Шаг 3. Запрашиваем информацию о перевозчике.
+            let carrierService = CarrierService(client: client, apikey: apikey)
+            let carrier = try await carrierService.getCarrierInfo(
+                code: String(carrierCode),
+                system: "yandex"   // код из ответа — в системе кодирования Яндекса
+            )
+            
+            print("✅ CarrierInfo (code=\(carrierCode)): \(carrier.carrier?.title ?? "—")")
+    }
+    
+    // Закомментирован: запрос возвращает ~40 МБ JSON, нужен отдельный сценарий загрузки.
+    // Будет использоваться на экране выбора города.
+        /*
+    private func testStationsList(client: Client, apikey: String) async throws {
+        let service = StationsListService(client: client, apikey: apikey)
+        let result = try await service.getStationsList()
+        print("✅ StationsList: стран — \(result.countries?.count ?? 0)")
+    }
+        */
+    
+    private func testCopyright(client: Client, apikey: String) async throws {
+        let service = CopyrightService(client: client, apikey: apikey)
+        let result = try await service.getCopyright()
+        print("✅ Copyright: \(result.copyright?.text ?? "—")")
+    }
+    
 }
 
 #Preview {
