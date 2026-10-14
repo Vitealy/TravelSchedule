@@ -6,21 +6,21 @@ info:
 servers:
   - url: https://api.rasp.yandex-net.ru
 tags:
-  - name: Список ближайших станций
+  - name: getNearestStations
     description: Список ближайших станций
-  - name: Расписание рейсов между станциями
+  - name: getScheduleBetweenStations
     description: Расписание рейсов между станциями
-  - name: Расписание рейсов по станции
+  - name: getScheduleOnStation
     description: Расписание рейсов по станции
-  - name: Список станций следования
+  - name: getThreadStations
     description: Список станций следования
-  - name: Ближайший город
+  - name: getNearestSettlement
     description: Ближайший город
-  - name: Информация о перевозчике
+  - name: getCarrierInfo
     description: Информация о перевозчике
-  - name: Список всех доступных станций
+  - name: getStationsList
     description: Список всех доступных станций
-  - name: Копирайт Яндекс Расписаний
+  - name: getCopyright
     description: Копирайт Яндекс Расписаний
 paths:
   /v3.0/nearest_stations/:
@@ -430,7 +430,7 @@ paths:
         "200":
           description: success
           content:
-            application/json:
+            text/html:
               schema:
                 $ref: '#/components/schemas/StationsListResponse'
 
@@ -677,10 +677,13 @@ components:
           type: string
         transport_type:
           type: string
-        latitude:
-          type: number
-        longitude:
-          type: number
+#        latitude:
+#          type: string
+#        longitude:
+#          type: string
+# latitude/longitude убраны: сервер возвращает смешанные типы (String/Number),
+        # swift-openapi-generator не поддерживает such mixed types.
+        # При необходимости добавим с кастомным декодированием.
 
     SettlementItem:
       type: object

@@ -28,6 +28,12 @@ final class StationsListService: StationsListServiceProtocol {
         let response = try await client.getStationsList(query: .init(
             apikey: apikey
         ))
-        return try response.ok.body.json
+        
+        let responseBody = try response.ok.body.html
+        
+        let limit = 50 * 1024 * 1024
+        let fullData = try await Data(collecting: responseBody, upTo: limit)
+        let stationsList = try JSONDecoder().decode(StationsListResponse.self, from: fullData)
+        return stationsList
     }
 }

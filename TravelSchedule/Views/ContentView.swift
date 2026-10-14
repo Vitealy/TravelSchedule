@@ -62,10 +62,8 @@ struct ContentView: View {
         do { try await testCarrierInfo(client: client, apikey: apikey) }
         catch { print("❌ CarrierInfo: \(error)") }
         
-// Закомментировано: запрос возвращает ~40 МБ JSON и может таймаутить.
-// Будет использоваться на экране выбора города — там будет реализована отдельная обработка.
-//        do { try await testStationsList(client: client, apikey: apikey) }
-//        catch { print("❌ StationsList: \(error)") }
+        do { try await testStationsList(client: client, apikey: apikey) }
+        catch { print("❌ StationsList: \(error)") }
         
         do { try await testCopyright(client: client, apikey: apikey) }
         catch { print("❌ Copyright: \(error)") }
@@ -158,15 +156,11 @@ struct ContentView: View {
             print("✅ CarrierInfo (code=\(carrierCode)): \(carrier.carrier?.title ?? "—")")
     }
     
-    // Закомментирован: запрос возвращает ~40 МБ JSON, нужен отдельный сценарий загрузки.
-    // Будет использоваться на экране выбора города.
-        /*
     private func testStationsList(client: Client, apikey: String) async throws {
         let service = StationsListService(client: client, apikey: apikey)
         let result = try await service.getStationsList()
         print("✅ StationsList: стран — \(result.countries?.count ?? 0)")
     }
-        */
     
     private func testCopyright(client: Client, apikey: String) async throws {
         let service = CopyrightService(client: client, apikey: apikey)
