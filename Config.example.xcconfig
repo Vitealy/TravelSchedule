@@ -1,0 +1,12 @@
+// Config.example.xcconfig
+// TravelSchedule
+//
+// Скопируйте этот файл в Config.xcconfig и подставьте свой API-ключ:
+//     cp Config.example.xcconfig Config.xcconfig
+//
+// Ключ Яндекс.Расписаний можно получить в Кабинете разработчика:
+//     https://developer.tech.yandex.ru/
+//
+// Файл Config.xcconfig добавлен в .gitignore и не попадёт в репозиторий.
+
+YANDEX_RASP_API_KEY = your_yandex_rasp_api_key_here
