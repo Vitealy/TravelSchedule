@@ -133,27 +133,27 @@ struct ContentView: View {
     
     private func testCarrierInfo(client: Client, apikey: String) async throws {
         // Шаг 1. Получаем расписание между двумя станциями.
-            let scheduleService = ScheduleBetweenStationsService(client: client, apikey: apikey)
-            let schedule = try await scheduleService.getScheduleBetweenStations(
-                from: "c146",   // Москва (пример кода)
-                to: "c213"      // Санкт-Петербург (пример кода)
-            )
-            
-            // Шаг 2. Достаём код перевозчика из первого сегмента.
-            // Если цепочка где-то оборвётся (нет сегментов, нет нитки, нет перевозчика) — выходим.
-            guard let carrierCode = schedule.segments?.first?.thread?.carrier?.code else {
-                print("⚠️ CarrierInfo: не удалось получить код перевозчика из расписания")
-                return
-            }
-            
-            // Шаг 3. Запрашиваем информацию о перевозчике.
-            let carrierService = CarrierService(client: client, apikey: apikey)
-            let carrier = try await carrierService.getCarrierInfo(
-                code: String(carrierCode),
-                system: "yandex"   // код из ответа — в системе кодирования Яндекса
-            )
-            
-            print("✅ CarrierInfo (code=\(carrierCode)): \(carrier.carrier?.title ?? "—")")
+        let scheduleService = ScheduleBetweenStationsService(client: client, apikey: apikey)
+        let schedule = try await scheduleService.getScheduleBetweenStations(
+            from: "c146",   // Москва (пример кода)
+            to: "c213"      // Санкт-Петербург (пример кода)
+        )
+        
+        // Шаг 2. Достаём код перевозчика из первого сегмента.
+        // Если цепочка где-то оборвётся (нет сегментов, нет нитки, нет перевозчика) — выходим.
+        guard let carrierCode = schedule.segments?.first?.thread?.carrier?.code else {
+            print("⚠️ CarrierInfo: не удалось получить код перевозчика из расписания")
+            return
+        }
+        
+        // Шаг 3. Запрашиваем информацию о перевозчике.
+        let carrierService = CarrierService(client: client, apikey: apikey)
+        let carrier = try await carrierService.getCarrierInfo(
+            code: String(carrierCode),
+            system: "yandex"   // код из ответа — в системе кодирования Яндекса
+        )
+        
+        print("✅ CarrierInfo (code=\(carrierCode)): \(carrier.carrier?.title ?? "—")")
     }
     
     private func testStationsList(client: Client, apikey: String) async throws {
