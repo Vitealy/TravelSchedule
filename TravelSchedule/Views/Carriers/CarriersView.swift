@@ -83,13 +83,22 @@ struct CarriersView: View {
             
             // Плавающая кнопка "Уточнить время"
             NavigationLink(destination: FiltersView(filter: $filter)) {
-                Text("Уточнить время")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("YPBlue")) // Кастомный цвет
-                    .cornerRadius(16)
+                HStack(spacing: 4) { // Отступ 4 между текстом и кружком
+                    Text("Уточнить время")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color("YPBackground"))
+                    
+                    // ПУНКТ 4: Красный индикатор, если фильтры активны
+                    if filter.isActive {
+                        Circle()
+                            .fill(Color("YPRed"))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .background(Color("YPBlue"))
+                .cornerRadius(16)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 16)

@@ -77,21 +77,36 @@ struct FiltersView: View {
                 .padding(.horizontal, 16)
             }
             
-            Button(action: {
-                dismiss() // Закрываем экран, фильтр уже применился через Binding
-            }) {
-                Text("Применить")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("YPBlue"))
-                    .cornerRadius(16)
+            if filter.isActive {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Text("Применить")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color("YPBackground"))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .background(Color("YPBlue"))
+                        .cornerRadius(16)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                .transition(.opacity) // Плавное появление
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
         .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .background(Color("YPBackground").ignoresSafeArea())
         .toolbar(.hidden, for: .tabBar)
+        
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color("YPBlack"))
+                }
+            }
+        }
     }
 }

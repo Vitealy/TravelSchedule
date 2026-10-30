@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainView: View {
-    // Состояние: выбранные города (пока строки, позже заменим на модели)
+    // Состояние: выбранные города
     @State private var fromCity: String = ""
     @State private var toCity: String = ""
     
@@ -19,75 +19,81 @@ struct MainView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                // 1. Плашка с выбором городов
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color("YPBlue"))
-                        .frame(height: 128)
-                    
-                    HStack {
-                        VStack(alignment: .leading, spacing: 20) {
-                            // Поле "Откуда"
-                            Button(action: {
-                                isSelectingFromCity = true
-                                showingCitySelection = true
-                            }) {
-                                Text(fromCity.isEmpty ? "Откуда" : fromCity)
-                                    .foregroundColor(fromCity.isEmpty ? .white.opacity(0.5) : .white)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            
-                            // Поле "Куда"
-                            Button(action: {
-                                isSelectingFromCity = false
-                                showingCitySelection = true
-                            }) {
-                                Text(toCity.isEmpty ? "Куда" : toCity)
-                                    .foregroundColor(toCity.isEmpty ? .white.opacity(0.5) : .white)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Поле "Откуда"
+                        Button(action: {
+                            isSelectingFromCity = true
+                            showingCitySelection = true
+                        }) {
+                            Text(fromCity.isEmpty ? "Откуда" : fromCity)
+                                .font(.system(size: 17))
+                                .foregroundColor(fromCity.isEmpty ? Color("YPGray") : Color("YPBlack")) // Серый цвет из ассетов (пункт 3)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 16) // Отступ внутри белого прямоугольника
+                                .padding(.top, 16)
                         }
-                        .padding(.leading, 16)
                         
-                        // Кнопка смены направления (Swap)
-                        Button(action: swapCities) {
-                            Image(systemName: "arrow.left.arrow.right")
+                        Spacer()
+                        
+                        // Поле "Куда"
+                        Button(action: {
+                            isSelectingFromCity = false
+                            showingCitySelection = true
+                        }) {
+                            Text(toCity.isEmpty ? "Куда" : toCity)
+                                .font(.system(size: 17))
+                                .foregroundColor(toCity.isEmpty ? Color("YPGray") : Color("YPBlack"))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 16)
+                        }
+                    }
+                    .frame(height: 96)
+                    .background(Color("YPBackground")) // Белый фон
+                    .cornerRadius(20)
+                    .padding(.vertical, 16) // Отступ сверху и снизу внутри синего
+                    .padding(.leading, 16) // Отступ слева внутри синего
+                    
+                    // Кнопка Swap
+                    Button(action: swapCities) {
+                            Image(systemName: "arrow.2.squarepath")
                                 .foregroundColor(Color("YPBlue"))
                                 .padding()
-                                .background(Color.white)
+                                .background(Color("YPBackground"))
                                 .clipShape(Circle())
-                        }
-                        .padding(.trailing, 16)
                     }
+                    .padding(.trailing, 16) // Отступ справа
                 }
+                .background(Color("YPBlue"))
+                .cornerRadius(20)
+                .padding(.horizontal, 16) // Отступы синего прямоугольника от краев экрана
+                .padding(.top, 16)
                 
-                // 2. Кнопка "Найти" (появляется только если оба поля заполнены)
+                // Кнопка "Найти"
                 if !fromCity.isEmpty && !toCity.isEmpty {
                     NavigationLink(destination: CarriersView(fromCity: fromCity, toCity: toCity)) {
                         Text("Найти")
                             .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color("YPBackground"))
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                             .background(Color("YPBlue"))
                             .cornerRadius(16)
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 112.5)
                 }
                 
-                Spacer() // Прижимает контент к верху
+                Spacer()
             }
-            .padding(.top, 20)
-            .navigationTitle("") // Убираем заголовок, как в макете
             .background(Color("YPBackground").ignoresSafeArea())
-            
-            // 3. Полноэкранный показ выбора города (перекрывает TabBar)
+            .navigationTitle("")
             .fullScreenCover(isPresented: $showingCitySelection) {
-                CitySelectionView(isFrom: isSelectingFromCity) { selectionResult in
+                CitySelectionView(isFrom: isSelectingFromCity) { selectedCity in
                     if isSelectingFromCity {
-                        fromCity = selectionResult // Сюда придет "Москва (Курский вокзал)"
+                        fromCity = selectedCity
                     } else {
-                        toCity = selectionResult
+                        toCity = selectedCity
                     }
                     showingCitySelection = false
                 }

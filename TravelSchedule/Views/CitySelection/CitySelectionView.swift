@@ -52,18 +52,17 @@ struct CitySelectionView: View {
                                     .font(.system(size: 17, weight: .regular))
                                     .foregroundColor(.primary)
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
                             }
                             .padding(.vertical, 4)
                         }
                         .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
                 }
             }
-            .navigationTitle(isFrom ? "Откуда" : "Куда")
+            .navigationTitle("Выбор города")
             .navigationBarTitleDisplayMode(.inline)
             .background(Color("YPBackground").ignoresSafeArea())
             .toolbar {
