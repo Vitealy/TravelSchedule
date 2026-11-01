@@ -28,6 +28,7 @@ enum AppErrorType {
 
 struct ErrorView: View {
     let errorType: AppErrorType
+    var onRetry: (() -> Void)? = nil
     
     var body: some View {
         VStack(spacing: 16) {
@@ -42,10 +43,23 @@ struct ErrorView: View {
             Text(errorType.title)
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(Color("YPBlack"))
+            
+            if let onRetry = onRetry {
+                Button(action: onRetry) {
+                    Text("Повторить")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 200, height: 50)
+                        .background(Color("YPBlue"))
+                        .cornerRadius(16)
+                }
+                .padding(.top, 20)
+            }
+            
             Spacer()
         }
+        .frame(maxWidth: .infinity)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
         .background(Color("YPBackground").ignoresSafeArea())
     }
 }

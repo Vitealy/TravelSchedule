@@ -83,7 +83,7 @@ struct FiltersView: View {
                 }) {
                     Text("Применить")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(Color("YPBackground"))
+                        .foregroundColor(Color.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
                         .background(Color("YPBlue"))

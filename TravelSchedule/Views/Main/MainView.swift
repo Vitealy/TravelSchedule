@@ -15,6 +15,7 @@ struct MainView: View {
     // Состояние для открытия экрана выбора города
     @State private var showingCitySelection = false
     @State private var isSelectingFromCity = true // true = Откуда, false = Куда
+    @State private var currentError: AppErrorType? = nil
     
     var body: some View {
         NavigationStack {
@@ -28,9 +29,9 @@ struct MainView: View {
                         }) {
                             Text(fromCity.isEmpty ? "Откуда" : fromCity)
                                 .font(.system(size: 17))
-                                .foregroundColor(fromCity.isEmpty ? Color("YPGray") : Color("YPBlack")) // Серый цвет из ассетов (пункт 3)
+                                .foregroundColor(fromCity.isEmpty ? Color(.ypGray) : Color.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 16) // Отступ внутри белого прямоугольника
+                                .padding(.horizontal, 16)
                                 .padding(.top, 16)
                         }
                         
@@ -43,31 +44,31 @@ struct MainView: View {
                         }) {
                             Text(toCity.isEmpty ? "Куда" : toCity)
                                 .font(.system(size: 17))
-                                .foregroundColor(toCity.isEmpty ? Color("YPGray") : Color("YPBlack"))
+                                .foregroundColor(toCity.isEmpty ? Color(.ypGray) : Color.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 16)
                         }
                     }
                     .frame(height: 96)
-                    .background(Color("YPBackground")) // Белый фон
+                    .background(Color.white)
                     .cornerRadius(20)
-                    .padding(.vertical, 16) // Отступ сверху и снизу внутри синего
-                    .padding(.leading, 16) // Отступ слева внутри синего
+                    .padding(.vertical, 16)
+                    .padding(.leading, 16)
                     
                     // Кнопка Swap
                     Button(action: swapCities) {
                             Image(systemName: "arrow.2.squarepath")
                                 .foregroundColor(Color("YPBlue"))
                                 .padding()
-                                .background(Color("YPBackground"))
+                                .background(Color.white)
                                 .clipShape(Circle())
                     }
-                    .padding(.trailing, 16) // Отступ справа
+                    .padding(.trailing, 16)
                 }
-                .background(Color("YPBlue"))
+                .background(Color(.ypBlue))
                 .cornerRadius(20)
-                .padding(.horizontal, 16) // Отступы синего прямоугольника от краев экрана
+                .padding(.horizontal, 16)
                 .padding(.top, 16)
                 
                 // Кнопка "Найти"
@@ -75,18 +76,34 @@ struct MainView: View {
                     NavigationLink(destination: CarriersView(fromCity: fromCity, toCity: toCity)) {
                         Text("Найти")
                             .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(Color("YPBackground"))
+                            .foregroundColor(Color.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
-                            .background(Color("YPBlue"))
+                            .background(Color(.ypBlue))
                             .cornerRadius(16)
                     }
                     .padding(.horizontal, 112.5)
                 }
                 
                 Spacer()
+                
+                // ВРЕМЕННЫЕ КНОПКИ ДЛЯ ПРОВЕРКИ Экранов Ошибки
+                HStack(spacing: 16) {
+                    Button("Нет интернета") {
+                        currentError = .noInternet
+                    }
+                    .foregroundColor(.red)
+                    
+                    Button("Ошибка сервера") {
+                        currentError = .serverError
+                    }
+                    .foregroundColor(.red)
+                }
+                .padding(.bottom, 20)
+                
             }
-            .background(Color("YPBackground").ignoresSafeArea())
+            .padding(.top, 20)
+            .background(Color(.ypBackground).ignoresSafeArea())
             .navigationTitle("")
             .fullScreenCover(isPresented: $showingCitySelection) {
                 CitySelectionView(isFrom: isSelectingFromCity) { selectedCity in
@@ -97,6 +114,9 @@ struct MainView: View {
                     }
                     showingCitySelection = false
                 }
+            }
+            .showErrorOverlay(errorType: currentError) {
+                currentError = nil
             }
         }
     }

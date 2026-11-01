@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CarrierDetailView: View {
     let carrierName: String
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack {
@@ -25,6 +26,17 @@ struct CarrierDetailView: View {
         .navigationTitle("Информация о перевозчике")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color("YPBlack"))
+                }
+            }
+        }
     }
 }
 

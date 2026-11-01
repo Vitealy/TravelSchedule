@@ -9,16 +9,15 @@ import SwiftUI
 
 struct CitySelectionView: View {
     let isFrom: Bool
-    // Замыкание, которое вернет итоговую строку (Город + Станция)
     let onSelectionComplete: (String) -> Void
-    
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
     
-    // Моковые данные (позже заменим на запрос к API)
+    // Состояние для программной навигации
+    @State private var cityToNavigate: String?
+    
     let cities = ["Москва", "Санкт-Петербург", "Сочи", "Горный воздух", "Краснодар", "Казань", "Омск"]
     
-    // Фильтрация списка по поиску
     var filteredCities: [String] {
         if searchText.isEmpty {
             return cities
@@ -33,27 +32,28 @@ struct CitySelectionView: View {
                 SearchBar(text: $searchText)
                 
                 if filteredCities.isEmpty {
-                    // Заглушка, если ничего не найдено
                     Spacer()
                     Text("Город не найден")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(Color("YPBlack"))
                     Spacer()
                 } else {
-                    // Список городов
                     List(filteredCities, id: \.self) { city in
-                        NavigationLink(destination: StationSelectionView(city: city, onStationSelected: { station in
-                            // Когда станция выбрана, мы возвращаем "Город (Станция)" и закрываем всё окно
-                            onSelectionComplete("\(city) (\(station))")
-                            dismiss()
-                        })) {
+                        // Используем Button вместо NavigationLink, чтобы убрать системную серую стрелку
+                        Button(action: {
+                            cityToNavigate = city // Запускаем навигацию
+                        }) {
                             HStack {
                                 Text(city)
                                     .font(.system(size: 17, weight: .regular))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Color("YPBlack"))
                                 Spacer()
+                                // Наша единственная стрелочка
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(Color("YPBlack"))
                             }
-                            .padding(.vertical, 4)
+                            .padding(.vertical, 8)
                         }
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -65,6 +65,13 @@ struct CitySelectionView: View {
             .navigationTitle("Выбор города")
             .navigationBarTitleDisplayMode(.inline)
             .background(Color("YPBackground").ignoresSafeArea())
+            // Программный переход на экран станции (доступно с iOS 17)
+            .navigationDestination(item: $cityToNavigate) { city in
+                StationSelectionView(city: city, onStationSelected: { station in
+                    onSelectionComplete("\(city) (\(station))")
+                    dismiss()
+                })
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {

@@ -54,6 +54,8 @@ struct CarriersView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
+            Color("YPBackground")
+                .ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("\(fromCity) → \(toCity)")
@@ -81,14 +83,13 @@ struct CarriersView: View {
                 }
             }
             
-            // Плавающая кнопка "Уточнить время"
             NavigationLink(destination: FiltersView(filter: $filter)) {
-                HStack(spacing: 4) { // Отступ 4 между текстом и кружком
+                HStack(spacing: 4) {
                     Text("Уточнить время")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(Color("YPBackground"))
+                        .foregroundColor(Color.white)
                     
-                    // ПУНКТ 4: Красный индикатор, если фильтры активны
+                    // Красный индикатор, если фильтры активны
                     if filter.isActive {
                         Circle()
                             .fill(Color("YPRed"))
@@ -104,11 +105,10 @@ struct CarriersView: View {
             .padding(.bottom, 16)
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar) // Скрываем таббар на внутренних экранах
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
-// Отдельная вью для карточки, чтобы код был чище
 struct CarrierCardView: View {
     let carrier: CarrierMock
     
@@ -122,42 +122,45 @@ struct CarrierCardView: View {
                 
                 Text(carrier.name)
                     .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color.black)
                 
                 if let transferText = carrier.transferText {
                     Text(transferText)
                         .font(.system(size: 12))
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(.ypRed))
                 }
                 
                 Spacer()
                 
                 Text(carrier.date)
                     .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.black)
             }
             
             HStack {
                 Text(carrier.departureTime)
-                    .font(.system(size: 20, weight: .regular))
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color.black)
                 
                 Rectangle()
-                    .fill(Color.gray.opacity(0.5))
+                    .fill(Color(.ypGray))
                     .frame(height: 1)
                 
                 Text(carrier.duration)
                     .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color.black)
                 
                 Rectangle()
-                    .fill(Color.gray.opacity(0.5))
+                    .fill(Color(.ypGray))
                     .frame(height: 1)
                 
                 Text(carrier.arrivalTime)
-                    .font(.system(size: 20, weight: .regular))
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color.black)
             }
         }
         .padding(16)
-        .background(Color(.systemGray6))
+        .background(Color(.ypLightGray))
         .cornerRadius(16)
     }
 }

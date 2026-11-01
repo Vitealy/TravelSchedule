@@ -40,7 +40,7 @@ struct MainTabView: View {
                     Image(systemName: "gearshape.fill")
                 }
         }
-        .tint(Color("YPIcon")) // Цвет активной вкладки (можно заменить на кастомный из Figma)
+        .tint(Color("YPIcon"))
     }
 }
 

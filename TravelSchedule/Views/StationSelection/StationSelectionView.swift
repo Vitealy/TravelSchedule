@@ -33,6 +33,7 @@ struct StationSelectionView: View {
                 Spacer()
                 Text("Станция не найдена")
                     .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color(.ypBlack))
                 Spacer()
             } else {
                 List(filteredStations, id: \.self) { station in
@@ -42,12 +43,13 @@ struct StationSelectionView: View {
                         HStack {
                             Text(station)
                                 .font(.system(size: 17, weight: .regular))
-                                .foregroundColor(Color("YPBlack"))
+                                .foregroundColor(Color(.ypBlack))
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .foregroundColor(.gray)
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(Color(.ypBlack))
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 8)
                     }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
@@ -59,7 +61,7 @@ struct StationSelectionView: View {
         .navigationTitle("Выбор станции")
         .navigationBarTitleDisplayMode(.inline)
         // Кастомная кнопка "Назад" (свайп назад тоже будет работать)
-        .background(Color("YPBackground").ignoresSafeArea())
+        .background(Color(.ypBackground).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
         // 2. Добавляем свою кастомную стрелочку
         .toolbar {
@@ -69,7 +71,7 @@ struct StationSelectionView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(Color("YPBlack"))
+                        .foregroundColor(Color(.ypBlack))
                 }
             }
         }
