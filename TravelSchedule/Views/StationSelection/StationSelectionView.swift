@@ -18,11 +18,7 @@ struct StationSelectionView: View {
     let stations = ["Киевский вокзал", "Курский вокзал", "Ярославский вокзал", "Белорусский вокзал", "Савеловский вокзал", "Ленинградский вокзал"]
     
     var filteredStations: [String] {
-        if searchText.isEmpty {
-            return stations
-        } else {
-            return stations.filter { $0.localizedCaseInsensitiveContains(searchText) }
-        }
+        searchText.isEmpty ? stations : stations.filter { $0.localizedCaseInsensitiveContains(searchText) }
     }
     
     var body: some View {
@@ -46,7 +42,7 @@ struct StationSelectionView: View {
                                 .foregroundColor(Color(.ypBlack))
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 20, weight: .semibold))
+                                .font(.system(size: 17, weight: .semibold))
                                 .foregroundColor(Color(.ypBlack))
                         }
                         .padding(.vertical, 8)

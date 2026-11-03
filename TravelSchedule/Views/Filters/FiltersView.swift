@@ -13,7 +13,7 @@ struct FiltersView: View {
     
     // Состояния для фильтров
     @State private var selectedTimes: Set<String> = []
-    @State private var hasTransfers: Bool? = nil // nil = не выбрано, true = да, false = нет
+    @State private var hasTransfers: Bool? // nil = не выбрано, true = да, false = нет
     
     let timeOptions = [
         "Утро 06:00 - 12:00",
@@ -45,7 +45,7 @@ struct FiltersView: View {
                             }) {
                                 Image(systemName: filter.selectedTimes.contains(option) ? "checkmark.square.fill" : "square")
                                     .font(.system(size: 24))
-                                    .foregroundColor(filter.selectedTimes.contains(option) ? Color("YPBlack") : .gray)
+                                    .foregroundColor(filter.selectedTimes.contains(option) ? Color(.ypBlack) : Color(.ypGray))
                             }
                         }
                     }
@@ -60,7 +60,7 @@ struct FiltersView: View {
                         Button(action: { filter.hasTransfers = true }) {
                             Image(systemName: filter.hasTransfers == true ? "largecircle.fill.circle" : "circle")
                                 .font(.system(size: 24))
-                                .foregroundColor(Color("YPBlack"))
+                                .foregroundColor(Color(.ypBlack))
                         }
                     }
                     
@@ -70,7 +70,7 @@ struct FiltersView: View {
                         Button(action: { filter.hasTransfers = false }) {
                             Image(systemName: filter.hasTransfers == false ? "largecircle.fill.circle" : "circle")
                                 .font(.system(size: 24))
-                                .foregroundColor(Color("YPBlack"))
+                                .foregroundColor(Color(.ypBlack))
                         }
                     }
                 }
@@ -86,7 +86,7 @@ struct FiltersView: View {
                         .foregroundColor(Color.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
-                        .background(Color("YPBlue"))
+                        .background(Color(.ypBlue))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 16)
@@ -96,7 +96,7 @@ struct FiltersView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .background(Color("YPBackground").ignoresSafeArea())
+        .background(Color(.ypBackground).ignoresSafeArea())
         .toolbar(.hidden, for: .tabBar)
         
         .navigationBarBackButtonHidden(true)
@@ -104,7 +104,7 @@ struct FiltersView: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(Color("YPBlack"))
+                        .foregroundColor(Color(.ypBlack))
                 }
             }
         }

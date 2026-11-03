@@ -18,7 +18,7 @@ struct CarrierDetailView: View {
                 .font(.system(size: 20, weight: .medium))
                 .multilineTextAlignment(.center)
                 .padding()
-                .foregroundColor(Color("YPBlack"))
+                .foregroundColor(Color(.ypBlack))
             Spacer()
         }
         .frame(maxWidth: .infinity)
@@ -33,7 +33,7 @@ struct CarrierDetailView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(Color("YPBlack"))
+                        .foregroundColor(Color(.ypBlack))
                 }
             }
         }

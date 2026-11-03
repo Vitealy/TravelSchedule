@@ -14,11 +14,11 @@ struct SettingsView: View {
                 Spacer()
                 Text("Экран настроек (в разработке)")
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(Color("YPBlack"))
+                    .foregroundColor(Color(.ypBlack))
                 Spacer()
             }
             .frame(maxWidth: .infinity)
-            .background(Color("YPBackground").ignoresSafeArea())
+            .background(Color(.ypBackground).ignoresSafeArea())
             .navigationTitle("Настройки")
             .navigationBarTitleDisplayMode(.inline)
         }

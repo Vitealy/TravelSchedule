@@ -13,15 +13,15 @@ struct MainTabView: View {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         // Фон таббара
-        appearance.backgroundColor = UIColor(Color("YPBackground"))
+        appearance.backgroundColor = UIColor(Color(.ypBackground))
         // Линия сверху над таббаром
-        appearance.shadowColor = UIColor(Color("YPGray").opacity(0.3))
+        appearance.shadowColor = UIColor(Color(.ypGray).opacity(0.3))
         
         // Цвет невыбранных иконок
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color("YPGray"))
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color(.ypGray))
         
         // Цвет выбранной иконки.
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color("YPIcon"))
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color(.ypIcon))
         
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
@@ -40,7 +40,7 @@ struct MainTabView: View {
                     Image(systemName: "gearshape.fill")
                 }
         }
-        .tint(Color("YPIcon"))
+        .tint(Color(.ypIcon))
     }
 }
 

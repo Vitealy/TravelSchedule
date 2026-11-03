@@ -13,15 +13,15 @@ enum AppErrorType {
     
     var title: String {
         switch self {
-        case .noInternet: return "Нет интернета"
-        case .serverError: return "Ошибка сервера"
+        case .noInternet: "Нет интернета"
+        case .serverError: "Ошибка сервера"
         }
     }
     
     var imageName: String {
         switch self {
-        case .noInternet: return "No Internet"
-        case .serverError: return "Server Error"
+        case .noInternet: "No Internet"
+        case .serverError: "Server Error"
         }
     }
 }
@@ -42,7 +42,7 @@ struct ErrorView: View {
             
             Text(errorType.title)
                 .font(.system(size: 24, weight: .bold))
-                .foregroundColor(Color("YPBlack"))
+                .foregroundColor(Color(.ypBlack))
             
             if let onRetry = onRetry {
                 Button(action: onRetry) {
@@ -50,7 +50,7 @@ struct ErrorView: View {
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 200, height: 50)
-                        .background(Color("YPBlue"))
+                        .background(Color(.ypBlue))
                         .cornerRadius(16)
                 }
                 .padding(.top, 20)
@@ -60,7 +60,7 @@ struct ErrorView: View {
         }
         .frame(maxWidth: .infinity)
         .navigationBarTitleDisplayMode(.inline)
-        .background(Color("YPBackground").ignoresSafeArea())
+        .background(Color(.ypBackground).ignoresSafeArea())
     }
 }
 

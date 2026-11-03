@@ -58,11 +58,11 @@ struct MainView: View {
                     
                     // Кнопка Swap
                     Button(action: swapCities) {
-                            Image(systemName: "arrow.2.squarepath")
-                                .foregroundColor(Color("YPBlue"))
-                                .padding()
-                                .background(Color.white)
-                                .clipShape(Circle())
+                        Image(systemName: "arrow.2.squarepath")
+                            .foregroundColor(Color(.ypBlue))
+                            .padding()
+                            .background(Color.white)
+                            .clipShape(Circle())
                     }
                     .padding(.trailing, 16)
                 }

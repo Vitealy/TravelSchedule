@@ -29,32 +29,31 @@ struct CarriersView: View {
     var filteredCarriers: [CarrierMock] {
         allCarriers.filter { carrier in
             // 1. Фильтр по пересадкам
-            if let hasTransfersFilter = filter.hasTransfers {
-                if carrier.hasTransfers != hasTransfersFilter {
-                    return false
-                }
+            if let hasTransfers = filter.hasTransfers,
+               carrier.hasTransfers != hasTransfers {
+                return false
             }
             
             // 2. Фильтр по времени
-            if !filter.selectedTimes.isEmpty {
-                var matchesTime = false
-                let hour = carrier.departureHour
-                
-                if filter.selectedTimes.contains("Утро 06:00 - 12:00") && (6..<12).contains(hour) { matchesTime = true }
-                if filter.selectedTimes.contains("День 12:00 - 18:00") && (12..<18).contains(hour) { matchesTime = true }
-                if filter.selectedTimes.contains("Вечер 18:00 - 00:00") && (18..<24).contains(hour) { matchesTime = true }
-                if filter.selectedTimes.contains("Ночь 00:00 - 06:00") && (0..<6).contains(hour) { matchesTime = true }
-                
-                if !matchesTime { return false }
-            }
+            let hour = carrier.departureHour
             
-            return true
+            let timeRanges: [String: Range<Int>] = [
+                "Утро 06:00 - 12:00": 6..<12,
+                "День 12:00 - 18:00": 12..<18,
+                "Вечер 18:00 - 00:00": 18..<24,
+                "Ночь 00:00 - 06:00": 0..<6
+            ]
+            
+            return filter.selectedTimes.isEmpty ||
+            filter.selectedTimes.contains { time in
+                timeRanges[time]?.contains(hour) == true
+            }
         }
     }
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color("YPBackground")
+            Color(.ypBackground)
                 .ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -92,14 +91,14 @@ struct CarriersView: View {
                     // Красный индикатор, если фильтры активны
                     if filter.isActive {
                         Circle()
-                            .fill(Color("YPRed"))
+                            .fill(Color(.ypRed))
                             .frame(width: 8, height: 8)
                     }
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 60)
-                .background(Color("YPBlue"))
-                .cornerRadius(16)
+                .background(Color(.ypBlue))
+                .clipShape(.rect(cornerRadius: 16))
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
@@ -109,7 +108,7 @@ struct CarriersView: View {
     }
 }
 
-struct CarrierCardView: View {
+private struct CarrierCardView: View {
     let carrier: CarrierMock
     
     var body: some View {
