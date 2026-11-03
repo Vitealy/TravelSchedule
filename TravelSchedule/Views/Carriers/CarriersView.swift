@@ -1,0 +1,165 @@
+//
+//  CarriersView.swift
+//  TravelSchedule
+//
+//  Created by Vitaly Kashavkin on 29.10.2026.
+//
+
+import SwiftUI
+
+struct CarriersView: View {
+    let fromCity: String
+    let toCity: String
+    
+    // Состояние фильтра
+    @State private var filter = FilterState()
+    
+    // Моковые данные (появятся, когда подключим API)
+    // Моковые данные (добавим время в часах для удобной фильтрации)
+    let allCarriers: [CarrierMock] = [
+        // Утренний рейс
+        CarrierMock(name: "РЖД", date: "14 января", departureTime: "08:30", arrivalTime: "12:15", duration: "4 часа", hasTransfers: false, transferText: nil, logoColor: .red, departureHour: 8),
+        // Дневной рейс с пересадкой
+        CarrierMock(name: "ФГК", date: "15 января", departureTime: "14:15", arrivalTime: "20:00", duration: "6 часов", hasTransfers: true, transferText: "С пересадкой в Костроме", logoColor: .blue, departureHour: 14),
+        // Вечерний рейс
+        CarrierMock(name: "Урал логистика", date: "16 января", departureTime: "19:30", arrivalTime: "23:00", duration: "3 часа", hasTransfers: false, transferText: nil, logoColor: .orange, departureHour: 19)
+    ]
+    
+    // Отфильтрованный список
+    var filteredCarriers: [CarrierMock] {
+        allCarriers.filter { carrier in
+            // 1. Фильтр по пересадкам
+            if let hasTransfers = filter.hasTransfers,
+               carrier.hasTransfers != hasTransfers {
+                return false
+            }
+            
+            // 2. Фильтр по времени
+            let hour = carrier.departureHour
+            
+            let timeRanges: [String: Range<Int>] = [
+                "Утро 06:00 - 12:00": 6..<12,
+                "День 12:00 - 18:00": 12..<18,
+                "Вечер 18:00 - 00:00": 18..<24,
+                "Ночь 00:00 - 06:00": 0..<6
+            ]
+            
+            return filter.selectedTimes.isEmpty ||
+            filter.selectedTimes.contains { time in
+                timeRanges[time]?.contains(hour) == true
+            }
+        }
+    }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Color(.ypBackground)
+                .ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("\(fromCity) → \(toCity)")
+                        .font(.system(size: 24, weight: .bold))
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
+                    
+                    if filteredCarriers.isEmpty {
+                        Text("Вариантов нет")
+                            .font(.system(size: 24, weight: .bold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 100)
+                    } else {
+                        LazyVStack(spacing: 12) {
+                            ForEach(filteredCarriers) { carrier in
+                                NavigationLink(destination: CarrierDetailView(carrierName: carrier.name)) {
+                                    CarrierCardView(carrier: carrier)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 100)
+                    }
+                }
+            }
+            
+            NavigationLink(destination: FiltersView(filter: $filter)) {
+                HStack(spacing: 4) {
+                    Text("Уточнить время")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color.white)
+                    
+                    // Красный индикатор, если фильтры активны
+                    if filter.isActive {
+                        Circle()
+                            .fill(Color(.ypRed))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .background(Color(.ypBlue))
+                .clipShape(.rect(cornerRadius: 16))
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+    }
+}
+
+private struct CarrierCardView: View {
+    let carrier: CarrierMock
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                // Заглушка логотипа
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(carrier.logoColor)
+                    .frame(width: 38, height: 38)
+                
+                Text(carrier.name)
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color.black)
+                
+                if let transferText = carrier.transferText {
+                    Text(transferText)
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(.ypRed))
+                }
+                
+                Spacer()
+                
+                Text(carrier.date)
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.black)
+            }
+            
+            HStack {
+                Text(carrier.departureTime)
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color.black)
+                
+                Rectangle()
+                    .fill(Color(.ypGray))
+                    .frame(height: 1)
+                
+                Text(carrier.duration)
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.black)
+                
+                Rectangle()
+                    .fill(Color(.ypGray))
+                    .frame(height: 1)
+                
+                Text(carrier.arrivalTime)
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color.black)
+            }
+        }
+        .padding(16)
+        .background(Color(.ypLightGray))
+        .cornerRadius(16)
+    }
+}

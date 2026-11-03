@@ -18,7 +18,6 @@ struct ContentView: View {
         }
         .padding()
         .task {
-            // Вызываем нашу тестовую функцию при появлении View
             await testAllServices()
         }
     }
