@@ -13,7 +13,6 @@ struct CitySelectionView: View {
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
     
-    // Состояние для программной навигации
     @State private var cityToNavigate: String?
     
     let cities = ["Москва", "Санкт-Петербург", "Сочи", "Горный воздух", "Краснодар", "Казань", "Омск"]
@@ -35,16 +34,15 @@ struct CitySelectionView: View {
                     Spacer()
                 } else {
                     List(filteredCities, id: \.self) { city in
-                        // Используем Button вместо NavigationLink, чтобы убрать системную серую стрелку
                         Button(action: {
-                            cityToNavigate = city // Запускаем навигацию
+                            cityToNavigate = city
                         }) {
                             HStack {
                                 Text(city)
                                     .font(.system(size: 17, weight: .regular))
                                     .foregroundColor(Color(.ypBlack))
                                 Spacer()
-                                // Наша единственная стрелочка
+                                
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 17, weight: .semibold))
                                     .foregroundColor(Color("YPBlack"))
@@ -61,7 +59,6 @@ struct CitySelectionView: View {
             .navigationTitle("Выбор города")
             .navigationBarTitleDisplayMode(.inline)
             .background(Color(.ypBackground).ignoresSafeArea())
-            // Программный переход на экран станции (доступно с iOS 17)
             .navigationDestination(item: $cityToNavigate) { city in
                 StationSelectionView(city: city, onStationSelected: { station in
                     onSelectionComplete("\(city) (\(station))")

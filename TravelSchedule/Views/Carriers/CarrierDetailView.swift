@@ -12,16 +12,43 @@ struct CarrierDetailView: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        VStack {
-            Spacer()
-            Text("Информация о перевозчике: \(carrierName)")
-                .font(.system(size: 20, weight: .medium))
-                .multilineTextAlignment(.center)
-                .padding()
-                .foregroundColor(Color(.ypBlack))
+        VStack(alignment: .leading, spacing: 16) {
+            // Картинка РЖД
+            Image("Image")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .frame(height: 104)
+                .padding(.top, 24)
+            
+            // Название
+            Text("ОАО «РЖД»")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(Color("YPBlack"))
+            
+            // E-mail
+            VStack(alignment: .leading, spacing: 4) {
+                Text("E-mail")
+                    .font(.system(size: 17))
+                    .foregroundColor(Color("YPBlack"))
+                Text("i.lozgkina@yandex.ru")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color("YPBlue"))
+            }
+            
+            // Телефон
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Телефон")
+                    .font(.system(size: 17))
+                    .foregroundColor(Color("YPBlack"))
+                Text("+7 (904) 329-27-71")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color("YPBlue"))
+            }
+            
             Spacer()
         }
-        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 16)
         .background(Color("YPBackground").ignoresSafeArea())
         .navigationTitle("Информация о перевозчике")
         .navigationBarTitleDisplayMode(.inline)
@@ -29,11 +56,9 @@ struct CarrierDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(Color(.ypBlack))
+                        .foregroundColor(Color("YPBlack"))
                 }
             }
         }
