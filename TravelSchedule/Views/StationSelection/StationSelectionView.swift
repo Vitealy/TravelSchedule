@@ -56,14 +56,11 @@ struct StationSelectionView: View {
         }
         .navigationTitle("Выбор станции")
         .navigationBarTitleDisplayMode(.inline)
-        // Кастомная кнопка "Назад" (свайп назад тоже будет работать)
         .background(Color(.ypBackground).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
-        // 2. Добавляем свою кастомную стрелочку
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    // Закрываем текущий экран и возвращаемся к списку городов
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")

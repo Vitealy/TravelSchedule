@@ -17,9 +17,25 @@ struct MainView: View {
     @State private var isSelectingFromCity = true // true = Откуда, false = Куда
     @State private var currentError: AppErrorType? = nil
     
+    // Данные для Stories
+    @State private var stories: [Story] = [
+        Story(imageName: "1", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text", isViewed: false),
+        Story(imageName: "2", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text", isViewed: false),
+        Story(imageName: "6", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text", isViewed: false),
+        Story(imageName: "4", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text.", isViewed: false)
+    ]
+    @State private var selectedStory: Story? = nil
+    
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
+            VStack(spacing: 0) {
+                // 1. ЛЕНТА STORIES
+                StoriesCollectionView(stories: stories) { story in
+                    selectedStory = story
+                }
+                .padding(.top, 0)
+                .padding(.bottom, 24)
+                // 2. СИНЯЯ КАРТОЧКА
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 0) {
                         // Поле "Откуда"
@@ -33,6 +49,7 @@ struct MainView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
+                                .contentShape(Rectangle())
                         }
                         
                         Spacer()
@@ -48,6 +65,7 @@ struct MainView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 16)
+                                .contentShape(Rectangle())
                         }
                     }
                     .frame(height: 96)
@@ -71,7 +89,7 @@ struct MainView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
                 
-                // Кнопка "Найти"
+                // 3. КНОПКА "НАЙТИ"
                 if !fromCity.isEmpty && !toCity.isEmpty {
                     NavigationLink(destination: CarriersView(fromCity: fromCity, toCity: toCity)) {
                         Text("Найти")
@@ -83,6 +101,7 @@ struct MainView: View {
                             .cornerRadius(16)
                     }
                     .padding(.horizontal, 112.5)
+                    .padding(.top, 16)
                 }
                 
                 Spacer()
@@ -113,6 +132,18 @@ struct MainView: View {
                         toCity = selectedCity
                     }
                     showingCitySelection = false
+                }
+            }
+            
+            .fullScreenCover(item: $selectedStory) { story in
+                StoriesView(
+                    stories: stories,
+                    startIndex: stories.firstIndex(of: story) ?? 0
+                ) { viewedStory in
+                    // Находим историю и помечаем ее просмотренной
+                    if let index = stories.firstIndex(where: { $0.id == viewedStory.id }) {
+                        stories[index].isViewed = true
+                    }
                 }
             }
             .showErrorOverlay(errorType: currentError) {

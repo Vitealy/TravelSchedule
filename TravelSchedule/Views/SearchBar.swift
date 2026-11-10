@@ -28,7 +28,7 @@ struct SearchBar: View {
             }
         }
         .padding(10)
-        .background(Color(.ypGray).opacity(0.2)) // Светло-серый фон
+        .background(Color(.ypGray).opacity(0.2))
         .cornerRadius(10)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
