@@ -18,12 +18,7 @@ struct MainView: View {
     @State private var currentError: AppErrorType? = nil
     
     // Данные для Stories
-    @State private var stories: [Story] = [
-        Story(imageName: "1", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text", isViewed: false),
-        Story(imageName: "2", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text", isViewed: false),
-        Story(imageName: "6", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text", isViewed: false),
-        Story(imageName: "4", title: "Text Text Text Text Text Text Text Text Text Text", description: "Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text.", isViewed: false)
-    ]
+    @State private var stories: [Story] = Story.mockStories
     @State private var selectedStory: Story? = nil
     
     var body: some View {
