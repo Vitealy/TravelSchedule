@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FilterState {
+struct FilterState: Sendable {
     // Выбранные периоды времени
     var selectedTimes: Set<String> = []
     // Пересадки: nil = не важно, true = только с пересадками, false = только без пересадок

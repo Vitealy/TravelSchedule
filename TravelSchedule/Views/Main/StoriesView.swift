@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 09.11.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 import Combine
 
 struct StoriesView: View {
@@ -58,7 +58,6 @@ struct StoriesView: View {
                 .frame(height: 4)
                 .padding(.horizontal, 12)
                 .padding(.top, 35)
-                
                 
                 // Кнопка закрытия
                 HStack {

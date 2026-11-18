@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 09.11.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct StoriesCollectionView: View {
     let stories: [Story]

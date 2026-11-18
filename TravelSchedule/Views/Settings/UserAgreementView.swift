@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 08.11.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct UserAgreementView: View {
     @Environment(\.dismiss) var dismiss

@@ -5,12 +5,10 @@
 //  Created by Vitaly Kashavkin on 29.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct MainView: View {
-    // Состояние: выбранные города
-    @State private var fromCity: String = ""
-    @State private var toCity: String = ""
+    @State private var viewModel = MainViewModel()
     
     // Состояние для открытия экрана выбора города
     @State private var showingCitySelection = false
@@ -18,14 +16,13 @@ struct MainView: View {
     @State private var currentError: AppErrorType? = nil
     
     // Данные для Stories
-    @State private var stories: [Story] = Story.mockStories
     @State private var selectedStory: Story? = nil
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 // 1. ЛЕНТА STORIES
-                StoriesCollectionView(stories: stories) { story in
+                StoriesCollectionView(stories: viewModel.stories) { story in
                     selectedStory = story
                 }
                 .padding(.top, 0)
@@ -38,9 +35,9 @@ struct MainView: View {
                             isSelectingFromCity = true
                             showingCitySelection = true
                         }) {
-                            Text(fromCity.isEmpty ? "Откуда" : fromCity)
+                            Text(viewModel.fromCity.isEmpty ? "Откуда" : viewModel.fromCity)
                                 .font(.system(size: 17))
-                                .foregroundColor(fromCity.isEmpty ? Color(.ypGray) : Color.black)
+                                .foregroundColor(viewModel.fromCity.isEmpty ? Color(.ypGray) : Color.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
@@ -54,9 +51,9 @@ struct MainView: View {
                             isSelectingFromCity = false
                             showingCitySelection = true
                         }) {
-                            Text(toCity.isEmpty ? "Куда" : toCity)
+                            Text(viewModel.toCity.isEmpty ? "Куда" : viewModel.toCity)
                                 .font(.system(size: 17))
-                                .foregroundColor(toCity.isEmpty ? Color(.ypGray) : Color.black)
+                                .foregroundColor(viewModel.toCity.isEmpty ? Color(.ypGray) : Color.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 16)
@@ -70,7 +67,7 @@ struct MainView: View {
                     .padding(.leading, 16)
                     
                     // Кнопка Swap
-                    Button(action: swapCities) {
+                    Button(action: viewModel.swapCities) {
                         Image(systemName: "arrow.2.squarepath")
                             .foregroundColor(Color(.ypBlue))
                             .padding()
@@ -85,8 +82,8 @@ struct MainView: View {
                 .padding(.top, 16)
                 
                 // 3. КНОПКА "НАЙТИ"
-                if !fromCity.isEmpty && !toCity.isEmpty {
-                    NavigationLink(destination: CarriersView(fromCity: fromCity, toCity: toCity)) {
+                if viewModel.isFindButtonVisible {
+                    NavigationLink(destination: CarriersView(fromCity: viewModel.fromCity, toCity: viewModel.toCity)) {
                         Text("Найти")
                             .font(.system(size: 17, weight: .bold))
                             .foregroundColor(Color.white)
@@ -122,9 +119,9 @@ struct MainView: View {
             .fullScreenCover(isPresented: $showingCitySelection) {
                 CitySelectionView(isFrom: isSelectingFromCity) { selectedCity in
                     if isSelectingFromCity {
-                        fromCity = selectedCity
+                        viewModel.fromCity = selectedCity
                     } else {
-                        toCity = selectedCity
+                        viewModel.toCity = selectedCity
                     }
                     showingCitySelection = false
                 }
@@ -132,13 +129,11 @@ struct MainView: View {
             
             .fullScreenCover(item: $selectedStory) { story in
                 StoriesView(
-                    stories: stories,
-                    startIndex: stories.firstIndex(of: story) ?? 0
+                    stories: viewModel.stories,
+                    startIndex: viewModel.stories.firstIndex(of: story) ?? 0
                 ) { viewedStory in
                     // Находим историю и помечаем ее просмотренной
-                    if let index = stories.firstIndex(where: { $0.id == viewedStory.id }) {
-                        stories[index].isViewed = true
-                    }
+                    viewModel.markStoryAsViewed(viewedStory)
                 }
             }
             .showErrorOverlay(errorType: currentError) {
@@ -146,15 +141,4 @@ struct MainView: View {
             }
         }
     }
-    
-    // Логика смены городов местами
-    private func swapCities() {
-        let temp = fromCity
-        fromCity = toCity
-        toCity = temp
-    }
-}
-
-#Preview {
-    MainView()
 }

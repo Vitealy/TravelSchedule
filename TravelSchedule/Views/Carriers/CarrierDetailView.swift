@@ -5,23 +5,40 @@
 //  Created by Vitaly Kashavkin on 30.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct CarrierDetailView: View {
-    let carrierName: String
+    let carrierCode: String
     @Environment(\.dismiss) var dismiss
     
+    @State private var viewModel: CarrierDetailViewModel
+    
+    init(carrierCode: String) {
+        self.carrierCode = carrierCode
+        self._viewModel = State(initialValue: CarrierDetailViewModel(carrierCode: carrierCode))
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            carrierLogo
-            carrierTitle
-            emailSection
-            phoneSection
+        ZStack {
+            Color("YPBackground").ignoresSafeArea()
             
-            Spacer()
+            if viewModel.isLoading {
+                ProgressView()
+            } else if let error = viewModel.error {
+                ErrorView(errorType: error) {
+                    Task { await viewModel.loadCarrierInfo() }
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 16) {
+                    carrierLogo
+                    carrierTitle
+                    emailSection
+                    phoneSection
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+            }
         }
-        .padding(.horizontal, 16)
-        .background(Color("YPBackground").ignoresSafeArea())
         .navigationTitle("Информация о перевозчике")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
@@ -34,21 +51,39 @@ struct CarrierDetailView: View {
                 }
             }
         }
+        .task {
+            await viewModel.loadCarrierInfo()
+        }
     }
     
     // MARK: - Subviews
     
     private var carrierLogo: some View {
-        Image("Image")
-            .resizable()
-            .scaledToFit()
-            .frame(maxWidth: .infinity)
-            .frame(height: 104)
-            .padding(.top, 24)
+        Group {
+            if let logoURLString = viewModel.carrierLogoURL,
+               let url = URL(string: logoURLString.hasPrefix("//") ? "https:\(logoURLString)" : logoURLString) {
+                // Если API вернул ссылку, грузим её из сети
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } placeholder: {
+                    ProgressView() // Крутилка, пока картинка грузится
+                }
+            } else {
+                // Если ссылки нет (или она битая), показываем заглушку из Assets
+                Image("Image")
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 104)
+        .padding(.top, 24)
     }
     
     private var carrierTitle: some View {
-        Text("ОАО «РЖД»")
+        Text(viewModel.carrierTitle)
             .font(.system(size: 24, weight: .bold))
             .foregroundColor(Color("YPBlack"))
     }
@@ -59,7 +94,7 @@ struct CarrierDetailView: View {
                 .font(.system(size: 17))
                 .foregroundColor(Color("YPBlack"))
             
-            Text("i.lozgkina@yandex.ru")
+            Text(viewModel.carrierEmail)
                 .font(.system(size: 12))
                 .foregroundColor(Color("YPBlue"))
         }
@@ -71,7 +106,7 @@ struct CarrierDetailView: View {
                 .font(.system(size: 17))
                 .foregroundColor(Color("YPBlack"))
             
-            Text("+7 (904) 329-27-71")
+            Text(viewModel.carrierPhone)
                 .font(.system(size: 12))
                 .foregroundColor(Color("YPBlue"))
         }
@@ -79,5 +114,5 @@ struct CarrierDetailView: View {
 }
 
 #Preview {
-    CarrierDetailView(carrierName: "РЖД")
+    CarrierDetailView(carrierCode: "63438")
 }

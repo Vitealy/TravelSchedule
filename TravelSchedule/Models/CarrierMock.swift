@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 29.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct CarrierMock: Identifiable {
     let id = UUID()
@@ -16,6 +16,6 @@ struct CarrierMock: Identifiable {
     let duration: String
     let hasTransfers: Bool
     let transferText: String?
-    let logoColor: Color // Вместо картинок пока используем цвета-заглушки
+    let logoColor: Color
     let departureHour: Int
 }

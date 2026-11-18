@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 29.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct FiltersView: View {
     @Environment(\.dismiss) var dismiss
@@ -91,7 +91,7 @@ struct FiltersView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
-                .transition(.opacity) // Плавное появление
+                .transition(.opacity)
             }
         }
         .navigationTitle("")
