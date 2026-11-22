@@ -10,8 +10,7 @@ internal import SwiftUI
 struct FiltersView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var filter: FilterState
-    
-    // Состояния для фильтров
+
     @State private var selectedTimes: Set<String> = []
     @State private var hasTransfers: Bool? // nil = не выбрано, true = да, false = нет
     

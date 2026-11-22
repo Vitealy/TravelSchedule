@@ -8,15 +8,19 @@
 internal import SwiftUI
 
 struct CarriersView: View {
-    let fromCity: String
-    let toCity: String
+    let fromCode: String
+    let toCode: String
+    let fromName: String
+    let toName: String
     
     @State private var viewModel: CarriersViewModel
     
-    init(fromCity: String, toCity: String) {
-        self.fromCity = fromCity
-        self.toCity = toCity
-        self._viewModel = State(initialValue: CarriersViewModel(fromCity: fromCity, toCity: toCity))
+    init(fromCode: String, toCode: String, fromName: String, toName: String) {
+        self.fromCode = fromCode
+        self.toCode = toCode
+        self.fromName = fromName
+        self.toName = toName
+        self._viewModel = State(initialValue: CarriersViewModel(fromCode: fromCode, toCode: toCode))
     }
     
     var body: some View {
@@ -32,7 +36,8 @@ struct CarriersView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("\(fromCity) → \(toCity)")
+                        // Используем переданные имена
+                        Text("\(fromName) → \(toName)")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(Color("YPBlack"))
                             .padding(.horizontal, 16)
@@ -47,7 +52,8 @@ struct CarriersView: View {
                         } else {
                             LazyVStack(spacing: 12) {
                                 ForEach(viewModel.filteredCarriers) { carrier in
-                                    NavigationLink(destination: CarrierDetailView(carrierCode: "63438")) {
+                                    // Передаем название перевозчика в детали
+                                    NavigationLink(destination: CarrierDetailView(carrierCode: carrier.carrierCode ?? "")) {
                                         CarrierCardView(carrier: carrier)
                                     }
                                     .buttonStyle(.plain)
@@ -59,7 +65,7 @@ struct CarriersView: View {
                     }
                 }
                 
-                // Плавающая кнопка фильтров
+                // Кнопка фильтров
                 NavigationLink(destination: FiltersView(filter: $viewModel.filter)) {
                     HStack(spacing: 4) {
                         Text("Уточнить время")
@@ -95,10 +101,38 @@ private struct CarrierCardView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                // Заглушка логотипа
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(carrier.logoColor)
-                    .frame(width: 38, height: 38)
+                // Умная загрузка логотипа
+                let name = carrier.name.lowercased()
+                let localImageName: String? = {
+                    if name.contains("ржд") || name.contains("фпк") { return "RR" }
+                    if name.contains("урал") { return "UL" }
+                    if name.contains("фгк") { return "FGK" }
+                    return nil
+                }()
+                
+                if let imageName = localImageName {
+                    // Если есть локальная картинка из Assets
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 38, height: 38)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    // Заглушка для остальных перевозчиков
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color("YPBackground"))
+                            .frame(width: 38, height: 38)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color("YPBlue").opacity(0.3), lineWidth: 1)
+                            )
+                        
+                        Image(systemName: "tram.fill")
+                            .foregroundColor(Color("YPBlue"))
+                            .font(.system(size: 20))
+                    }
+                }
                 
                 Text(carrier.name)
                     .font(.system(size: 17, weight: .regular))

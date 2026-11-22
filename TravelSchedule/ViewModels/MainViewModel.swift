@@ -11,20 +11,21 @@ import Observation
 @MainActor
 @Observable
 final class MainViewModel {
-    var fromCity: String = ""
-    var toCity: String = ""
+    var fromCityName: String = ""
+    var fromStation: Station? = nil
+    var toCityName: String = ""
+    var toStation: Station? = nil
     var stories: [Story] = Story.mockStories
     
     // Вычисляемое свойство: показывать ли кнопку "Найти"
     var isFindButtonVisible: Bool {
-        !fromCity.isEmpty && !toCity.isEmpty
+        fromStation != nil && toStation != nil
     }
     
     // Логика смены городов местами
     func swapCities() {
-        let temp = fromCity
-        fromCity = toCity
-        toCity = temp
+        swap(&fromCityName, &toCityName)
+        swap(&fromStation, &toStation)
     }
     
     // Обновление статуса просмотренной истории
@@ -32,5 +33,24 @@ final class MainViewModel {
         if let index = stories.firstIndex(where: { $0.id == viewedStory.id }) {
             stories[index].isViewed = true
         }
+    }
+    
+    // Вспомогательный метод: формирует строку "Город (Станция)"
+    func formatDisplayString(city: String, station: Station?) -> String {
+        guard let station = station else { return "" }
+        let stationName = station.name
+        
+        // Если название станции полностью совпадает с городом
+        if stationName.lowercased() == city.lowercased() {
+            return city
+        }
+        
+        // Если название станции УЖЕ содержит город
+        if stationName.lowercased().contains(city.lowercased()) {
+            return stationName
+        }
+        
+        // Если станция не содержит город, оборачиваем
+        return "\(city) (\(stationName))"
     }
 }

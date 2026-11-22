@@ -24,8 +24,6 @@ final class CarrierDetailViewModel {
     private let networkClient: NetworkClient
     private let carrierCode: String
     
-    // В реальном приложении код перевозчика приходит из ответа предыдущего экрана.
-    // Для теста передадим "63438" (Гранд Сервис Экспресс) или любой другой.
     init(carrierCode: String, networkClient: NetworkClient = try! NetworkClient()) {
         self.carrierCode = carrierCode
         self.networkClient = networkClient

@@ -14,13 +14,13 @@ final class CitySelectionViewModel {
     
     // MARK: - Public Properties (для View)
     var searchText: String = ""
-    var cities: [String] = []
+    var cities: [City] = []
     var isLoading: Bool = false
     var error: AppErrorType? = nil
     
     // Вычисляемые данные для списка
-    var filteredCities: [String] {
-        searchText.isEmpty ? cities : cities.filter { $0.localizedCaseInsensitiveContains(searchText) }
+    var filteredCities: [City] {
+        searchText.isEmpty ? cities : cities.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
     
     // MARK: - Dependencies
@@ -36,19 +36,10 @@ final class CitySelectionViewModel {
         error = nil
         
         do {
-            // В идеале тут нужно использовать getStationsList и парсить города
-            // Для примера используем моки, чтобы не грузить 40 МБ при каждом запуске
-            let mockCities = ["Москва", "Санкт-Петербург", "Сочи", "Горный воздух", "Краснодар", "Казань", "Омск"]
-            self.cities = mockCities
-            
-            // ЗАКОММЕНТИРОВАННЫЙ ПРИМЕР С СЕТЬЮ:
-            // let response = try await networkClient.getStationsList()
-            // self.cities = parseCities(from: response)
-            
+            self.cities = try await networkClient.fetchAllCities()
         } catch {
-            self.error = .serverError // Твой Enum ошибки
+            self.error = .serverError
         }
-        
         isLoading = false
     }
 }

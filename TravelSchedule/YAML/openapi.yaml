@@ -532,6 +532,8 @@ components:
           type: string
         title:
           type: string
+        logo:
+          type: string
 
     Thread:
       type: object
@@ -560,6 +562,20 @@ components:
           type: string
         arrival:
           type: string
+        transfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
+
+    Transfer:
+      type: object
+      properties:
+        title:
+          type: string
+        from:
+          $ref: '#/components/schemas/Station'
+        to:
+          $ref: '#/components/schemas/Station'
 
     IntervalSegment:
       type: object
@@ -677,13 +693,6 @@ components:
           type: string
         transport_type:
           type: string
-#        latitude:
-#          type: string
-#        longitude:
-#          type: string
-# latitude/longitude убраны: сервер возвращает смешанные типы (String/Number),
-        # swift-openapi-generator не поддерживает such mixed types.
-        # При необходимости добавим с кастомным декодированием.
 
     SettlementItem:
       type: object

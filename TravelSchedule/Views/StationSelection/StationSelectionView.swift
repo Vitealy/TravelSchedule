@@ -8,41 +8,35 @@
 internal import SwiftUI
 
 struct StationSelectionView: View {
-    let city: String
-    let onStationSelected: (String) -> Void
+    let city: City
+    let onStationSelected: (String, Station) -> Void
     @Environment(\.dismiss) var dismiss
     
-    // Используем нашу ViewModel
     @State private var viewModel: StationSelectionViewModel
     
-    // Инициализируем ViewModel с городом
-    init(city: String, onStationSelected: @escaping (String) -> Void) {
+    init(city: City, onStationSelected: @escaping (String, Station) -> Void) {
         self.city = city
         self.onStationSelected = onStationSelected
-        self._viewModel = State(initialValue: StationSelectionViewModel(city: city))
+        self._viewModel = State(initialValue: StationSelectionViewModel(city: city.name, stations: city.stations))
     }
     
     var body: some View {
         VStack(spacing: 0) {
             SearchBar(text: $viewModel.searchText)
             
-            if viewModel.isLoading {
-                ProgressView()
-                    .padding(.top, 50)
-                Spacer()
-            } else if viewModel.filteredStations.isEmpty {
+            if viewModel.filteredStations.isEmpty {
                 Spacer()
                 Text("Станция не найдена")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color("YPBlack"))
                 Spacer()
             } else {
-                List(viewModel.filteredStations, id: \.self) { station in
+                List(viewModel.filteredStations) { station in
                     Button(action: {
-                        onStationSelected(station)
+                        onStationSelected(city.name, station)
                     }) {
                         HStack {
-                            Text(station)
+                            Text(station.name)
                                 .font(.system(size: 17, weight: .regular))
                                 .foregroundColor(Color("YPBlack"))
                             Spacer()
@@ -70,9 +64,6 @@ struct StationSelectionView: View {
                         .foregroundColor(Color("YPBlack"))
                 }
             }
-        }
-        .task {
-            await viewModel.loadStations()
         }
     }
 }

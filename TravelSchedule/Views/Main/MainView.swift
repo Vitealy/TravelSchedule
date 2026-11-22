@@ -10,12 +10,10 @@ internal import SwiftUI
 struct MainView: View {
     @State private var viewModel = MainViewModel()
     
-    // Состояние для открытия экрана выбора города
     @State private var showingCitySelection = false
     @State private var isSelectingFromCity = true // true = Откуда, false = Куда
     @State private var currentError: AppErrorType? = nil
     
-    // Данные для Stories
     @State private var selectedStory: Story? = nil
     
     var body: some View {
@@ -35,9 +33,11 @@ struct MainView: View {
                             isSelectingFromCity = true
                             showingCitySelection = true
                         }) {
-                            Text(viewModel.fromCity.isEmpty ? "Откуда" : viewModel.fromCity)
+                            Text(viewModel.fromStation == nil
+                                 ? "Откуда"
+                                 : viewModel.formatDisplayString(city: viewModel.fromCityName, station: viewModel.fromStation))
                                 .font(.system(size: 17))
-                                .foregroundColor(viewModel.fromCity.isEmpty ? Color(.ypGray) : Color.black)
+                                .foregroundColor(viewModel.fromCityName.isEmpty ? Color(.ypGray) : Color("YPOnlyBlack"))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
@@ -51,9 +51,11 @@ struct MainView: View {
                             isSelectingFromCity = false
                             showingCitySelection = true
                         }) {
-                            Text(viewModel.toCity.isEmpty ? "Куда" : viewModel.toCity)
+                            Text(viewModel.toStation == nil
+                                 ? "Куда"
+                                 : viewModel.formatDisplayString(city: viewModel.toCityName, station: viewModel.toStation))
                                 .font(.system(size: 17))
-                                .foregroundColor(viewModel.toCity.isEmpty ? Color(.ypGray) : Color.black)
+                                .foregroundColor(viewModel.toCityName.isEmpty ? Color(.ypGray) : Color("YPOnlyBlack"))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 16)
@@ -83,7 +85,12 @@ struct MainView: View {
                 
                 // 3. КНОПКА "НАЙТИ"
                 if viewModel.isFindButtonVisible {
-                    NavigationLink(destination: CarriersView(fromCity: viewModel.fromCity, toCity: viewModel.toCity)) {
+                    NavigationLink(destination: CarriersView(
+                        fromCode: viewModel.fromStation?.code ?? "",
+                        toCode: viewModel.toStation?.code ?? "",
+                        fromName: viewModel.formatDisplayString(city: viewModel.fromCityName, station: viewModel.fromStation),
+                        toName: viewModel.formatDisplayString(city: viewModel.toCityName, station: viewModel.toStation)
+                    )) {
                         Text("Найти")
                             .font(.system(size: 17, weight: .bold))
                             .foregroundColor(Color.white)
@@ -98,30 +105,18 @@ struct MainView: View {
                 
                 Spacer()
                 
-                // ВРЕМЕННЫЕ КНОПКИ ДЛЯ ПРОВЕРКИ Экранов Ошибки
-                HStack(spacing: 16) {
-                    Button("Нет интернета") {
-                        currentError = .noInternet
-                    }
-                    .foregroundColor(.red)
-                    
-                    Button("Ошибка сервера") {
-                        currentError = .serverError
-                    }
-                    .foregroundColor(.red)
-                }
-                .padding(.bottom, 20)
-                
             }
             .padding(.top, 20)
             .background(Color(.ypBackground).ignoresSafeArea())
             .navigationTitle("")
             .fullScreenCover(isPresented: $showingCitySelection) {
-                CitySelectionView(isFrom: isSelectingFromCity) { selectedCity in
+                CitySelectionView(isFrom: isSelectingFromCity) { cityName, station in
                     if isSelectingFromCity {
-                        viewModel.fromCity = selectedCity
+                        viewModel.fromCityName = cityName
+                        viewModel.fromStation = station
                     } else {
-                        viewModel.toCity = selectedCity
+                        viewModel.toCityName = cityName
+                        viewModel.toStation = station
                     }
                     showingCitySelection = false
                 }

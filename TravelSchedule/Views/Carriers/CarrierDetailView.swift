@@ -68,13 +68,14 @@ struct CarrierDetailView: View {
                         .resizable()
                         .scaledToFit()
                 } placeholder: {
-                    ProgressView() // Крутилка, пока картинка грузится
+                    ProgressView()
                 }
             } else {
                 // Если ссылки нет (или она битая), показываем заглушку из Assets
-                Image("Image")
+                Image(systemName: "tram.card")
                     .resizable()
                     .scaledToFit()
+                    .foregroundColor(Color("YPBlue"))
             }
         }
         .frame(maxWidth: .infinity)

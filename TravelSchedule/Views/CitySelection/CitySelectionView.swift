@@ -9,11 +9,11 @@ internal import SwiftUI
 
 struct CitySelectionView: View {
     let isFrom: Bool
-    let onSelectionComplete: (String) -> Void
+    let onSelectionComplete: (String, Station) -> Void
     @Environment(\.dismiss) var dismiss
     
     @State private var viewModel = CitySelectionViewModel()
-    @State private var cityToNavigate: String?
+    @State private var cityToNavigate: City?
     
     var body: some View {
         NavigationStack {
@@ -31,10 +31,11 @@ struct CitySelectionView: View {
                         .foregroundColor(Color("YPBlack"))
                     Spacer()
                 } else {
-                    List(viewModel.filteredCities, id: \.self) { city in
+                    List(viewModel.filteredCities) { city in
                         Button(action: { cityToNavigate = city }) {
                             HStack {
-                                Text(city).foregroundColor(Color("YPBlack"))
+                                Text(city.name)
+                                    .foregroundColor(Color("YPBlack"))
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 20, weight: .semibold))
@@ -53,8 +54,8 @@ struct CitySelectionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .background(Color("YPBackground").ignoresSafeArea())
             .navigationDestination(item: $cityToNavigate) { city in
-                StationSelectionView(city: city, onStationSelected: { station in
-                    onSelectionComplete("\(city) (\(station))")
+                StationSelectionView(city: city, onStationSelected: { cityName, selectedStation in
+                    onSelectionComplete(cityName, selectedStation)
                     dismiss()
                 })
             }
