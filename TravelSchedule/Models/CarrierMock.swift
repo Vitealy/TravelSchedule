@@ -16,7 +16,7 @@ struct CarrierMock: Identifiable {
     let duration: String
     let hasTransfers: Bool
     let transferText: String?
-    let logoURL: String?
+    let logoURLString: String?
     let logoColor: Color
     let departureHour: Int
     let carrierCode: String?

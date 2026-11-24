@@ -136,7 +136,7 @@ final class CarriersViewModel {
             duration: durationString,
             hasTransfers: hasTransfers,
             transferText: transferText,
-            logoURL: logoURL,
+            logoURLString: logoURL,
             logoColor: .red,
             departureHour: departureHour,
             carrierCode: carrierCode
