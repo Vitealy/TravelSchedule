@@ -5,13 +5,12 @@
 //  Created by Vitaly Kashavkin on 29.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct FiltersView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var filter: FilterState
-    
-    // Состояния для фильтров
+
     @State private var selectedTimes: Set<String> = []
     @State private var hasTransfers: Bool? // nil = не выбрано, true = да, false = нет
     
@@ -91,7 +90,7 @@ struct FiltersView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
-                .transition(.opacity) // Плавное появление
+                .transition(.opacity)
             }
         }
         .navigationTitle("")

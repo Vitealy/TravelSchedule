@@ -5,106 +5,93 @@
 //  Created by Vitaly Kashavkin on 29.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct CarriersView: View {
-    let fromCity: String
-    let toCity: String
+    let fromCode: String
+    let toCode: String
+    let fromName: String
+    let toName: String
     
-    // Состояние фильтра
-    @State private var filter = FilterState()
+    @State private var viewModel: CarriersViewModel
     
-    // Моковые данные (появятся, когда подключим API)
-    // Моковые данные (добавим время в часах для удобной фильтрации)
-    let allCarriers: [CarrierMock] = [
-        // Утренний рейс
-        CarrierMock(name: "РЖД", date: "14 января", departureTime: "08:30", arrivalTime: "12:15", duration: "4 часа", hasTransfers: false, transferText: nil, logoColor: .red, departureHour: 8),
-        // Дневной рейс с пересадкой
-        CarrierMock(name: "ФГК", date: "15 января", departureTime: "14:15", arrivalTime: "20:00", duration: "6 часов", hasTransfers: true, transferText: "С пересадкой в Костроме", logoColor: .blue, departureHour: 14),
-        // Вечерний рейс
-        CarrierMock(name: "Урал логистика", date: "16 января", departureTime: "19:30", arrivalTime: "23:00", duration: "3 часа", hasTransfers: false, transferText: nil, logoColor: .orange, departureHour: 19)
-    ]
-    
-    // Отфильтрованный список
-    var filteredCarriers: [CarrierMock] {
-        allCarriers.filter { carrier in
-            // 1. Фильтр по пересадкам
-            if let hasTransfers = filter.hasTransfers,
-               carrier.hasTransfers != hasTransfers {
-                return false
-            }
-            
-            // 2. Фильтр по времени
-            let hour = carrier.departureHour
-            
-            let timeRanges: [String: Range<Int>] = [
-                "Утро 06:00 - 12:00": 6..<12,
-                "День 12:00 - 18:00": 12..<18,
-                "Вечер 18:00 - 00:00": 18..<24,
-                "Ночь 00:00 - 06:00": 0..<6
-            ]
-            
-            return filter.selectedTimes.isEmpty ||
-            filter.selectedTimes.contains { time in
-                timeRanges[time]?.contains(hour) == true
-            }
-        }
+    init(fromCode: String, toCode: String, fromName: String, toName: String) {
+        self.fromCode = fromCode
+        self.toCode = toCode
+        self.fromName = fromName
+        self.toName = toName
+        self._viewModel = State(initialValue: CarriersViewModel(fromCode: fromCode, toCode: toCode))
     }
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color(.ypBackground)
-                .ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("\(fromCity) → \(toCity)")
-                        .font(.system(size: 24, weight: .bold))
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
-                    
-                    if filteredCarriers.isEmpty {
-                        Text("Вариантов нет")
-                            .font(.system(size: 24, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 100)
-                    } else {
-                        LazyVStack(spacing: 12) {
-                            ForEach(filteredCarriers) { carrier in
-                                NavigationLink(destination: CarrierDetailView(carrierName: carrier.name)) {
-                                    CarrierCardView(carrier: carrier)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 100)
-                    }
-                }
-            }
+            Color("YPBackground").ignoresSafeArea()
             
-            NavigationLink(destination: FiltersView(filter: $filter)) {
-                HStack(spacing: 4) {
-                    Text("Уточнить время")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(Color.white)
-                    
-                    // Красный индикатор, если фильтры активны
-                    if filter.isActive {
-                        Circle()
-                            .fill(Color(.ypRed))
-                            .frame(width: 8, height: 8)
+            if viewModel.isLoading {
+                ProgressView()
+            } else if let error = viewModel.error {
+                ErrorView(errorType: error) {
+                    Task { await viewModel.loadCarriers() }
+                }
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Используем переданные имена
+                        Text("\(fromName) → \(toName)")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(Color("YPBlack"))
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                        
+                        if viewModel.filteredCarriers.isEmpty {
+                            Text("Вариантов нет")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundColor(Color("YPBlack"))
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 100)
+                        } else {
+                            LazyVStack(spacing: 12) {
+                                ForEach(viewModel.filteredCarriers) { carrier in
+                                    // Передаем название перевозчика в детали
+                                    NavigationLink(destination: CarrierDetailView(carrierCode: carrier.carrierCode ?? "")) {
+                                        CarrierCardView(carrier: carrier)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 100)
+                        }
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 60)
-                .background(Color(.ypBlue))
-                .clipShape(.rect(cornerRadius: 16))
+                
+                // Кнопка фильтров
+                NavigationLink(destination: FiltersView(filter: $viewModel.filter)) {
+                    HStack(spacing: 4) {
+                        Text("Уточнить время")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        if viewModel.filter.isActive {
+                            Circle()
+                                .fill(Color("YPRed"))
+                                .frame(width: 8, height: 8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color("YPBlue"))
+                    .clipShape(.rect(cornerRadius: 16))
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .task {
+            await viewModel.loadCarriers()
+        }
     }
 }
 
@@ -114,10 +101,38 @@ private struct CarrierCardView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                // Заглушка логотипа
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(carrier.logoColor)
-                    .frame(width: 38, height: 38)
+                // Умная загрузка логотипа
+                let name = carrier.name.lowercased()
+                let localImageName: String? = {
+                    if name.contains("ржд") || name.contains("фпк") { return "RR" }
+                    if name.contains("урал") { return "UL" }
+                    if name.contains("фгк") { return "FGK" }
+                    return nil
+                }()
+                
+                if let imageName = localImageName {
+                    // Если есть локальная картинка из Assets
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 38, height: 38)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    // Заглушка для остальных перевозчиков
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color("YPBackground"))
+                            .frame(width: 38, height: 38)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color("YPBlue").opacity(0.3), lineWidth: 1)
+                            )
+                        
+                        Image(systemName: "tram.fill")
+                            .foregroundColor(Color("YPBlue"))
+                            .font(.system(size: 20))
+                    }
+                }
                 
                 Text(carrier.name)
                     .font(.system(size: 17, weight: .regular))

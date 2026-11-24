@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 29.10.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 struct MainTabView: View {
     

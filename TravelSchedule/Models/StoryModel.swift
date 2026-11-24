@@ -5,9 +5,9 @@
 //  Created by Vitaly Kashavkin on 09.11.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
-struct Story: Identifiable, Equatable {
+struct Story: Identifiable, Sendable, Equatable {
     let id = UUID()
     let imageName: String
     let title: String

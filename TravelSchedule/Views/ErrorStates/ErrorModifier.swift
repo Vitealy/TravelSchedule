@@ -5,7 +5,7 @@
 //  Created by Vitaly Kashavkin on 02.11.2026.
 //
 
-import SwiftUI
+internal import SwiftUI
 
 extension View {
     /// Модификатор для показа экрана ошибки поверх любого контента
